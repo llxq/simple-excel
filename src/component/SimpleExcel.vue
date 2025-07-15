@@ -2,15 +2,10 @@
 defineOptions({
   name: "SimpleExcel",
 });
-
-const { xGrid, yGrid } = defineProps<{
-  xGrid?: number;
-  yGrid?: number;
-}>();
 </script>
 
 <template>
-  <div class="simple-excel__container">{{ xGrid }} x {{ yGrid }}</div>
+  <div class="simple-excel__container"></div>
 </template>
 
 <style scoped lang="scss">
