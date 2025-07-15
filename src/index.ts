@@ -5,6 +5,7 @@ import SimpleExcel from "./component/SimpleExcel.vue";
 const install = (app: App) => {
   app.component("SimpleExcel", SimpleExcel);
   console.log("test");
+  debugger;
 };
 
 export { SimpleExcel };
