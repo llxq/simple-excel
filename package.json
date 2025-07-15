@@ -7,7 +7,12 @@
     "dev": "vite -c scripts/vite.dev.config.ts --open --host",
     "build:dev": "vite build -c scripts/vite.prod.config.ts",
     "build": "vue-tsc -b && vite build -c scripts/vite.prod.config.ts",
-    "prepare": "husky"
+    "prepare": "husky install"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "dependencies": {
     "vue": "^3.5.17"
