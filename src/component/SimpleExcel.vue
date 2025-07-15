@@ -10,7 +10,7 @@ const { xGrid, yGrid } = defineProps<{
 </script>
 
 <template>
-  <div class="simple-excel__container" xxx="1">{{ xGrid }} x {{ yGrid }}</div>
+  <div class="simple-excel__container">{{ xGrid }} x {{ yGrid }}</div>
 </template>
 
 <style scoped lang="scss">
