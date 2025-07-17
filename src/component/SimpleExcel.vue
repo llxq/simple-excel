@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ExcelTable from "./ExcelTable.vue";
+import ExcelTable from "@/component/ExcelTable.vue";
 
 defineOptions({
   name: "SimpleExcel",
@@ -8,7 +8,7 @@ defineOptions({
 
 <template>
   <div class="simple-excel__container">
-    <ExcelTable :x-grid="100" :y-grid="100" />
+    <ExcelTable :x-grid="50" :y-grid="50" />
   </div>
 </template>
 
@@ -17,5 +17,9 @@ defineOptions({
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+
+  * {
+    box-sizing: border-box;
+  }
 }
 </style>

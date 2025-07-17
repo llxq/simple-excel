@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
+import { alias } from "./utils/alias";
 
 export default defineConfig({
   root: resolve(__dirname, "../test"),
@@ -14,5 +15,8 @@ export default defineConfig({
     rollupOptions: {
       input: resolve(__dirname, "main.ts"),
     },
+  },
+  resolve: {
+    alias,
   },
 });

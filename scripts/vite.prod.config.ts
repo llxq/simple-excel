@@ -4,6 +4,7 @@ import { resolve } from "path";
 import dts from "vite-plugin-dts";
 import injectCssByJs from "vite-plugin-css-injected-by-js";
 import { optimizeDeclarationFile } from "./plugins/optimizeDeclarationFile.ts";
+import { alias } from "./utils/alias";
 
 export default defineConfig({
   plugins: [
@@ -33,5 +34,8 @@ export default defineConfig({
       },
     },
     emptyOutDir: true,
+  },
+  resolve: {
+    alias,
   },
 });

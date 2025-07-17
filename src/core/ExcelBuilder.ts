@@ -1,15 +1,10 @@
-import { ExcelColumn } from "./ExcelColumn.ts";
-import { generateRowNameByLength } from "./helper.ts";
-
 export class ExcelBuilder {
-  public columns: ExcelColumn[] = [];
+  /**
+   * 当前激活的坐标
+   */
+  public activePoint: { x: TUndefinedAble<number>; y: TUndefinedAble<number> } = { x: void 0, y: void 0 };
 
-  public generateColumnByLength(length: number): void {
-    this.columns = generateRowNameByLength(length).map((m) => {
-      return new ExcelColumn({
-        name: m,
-        width: 100,
-      });
-    });
+  public updateActivePoint(x: TUndefinedAble<number>, y: TUndefinedAble<number>) {
+    this.activePoint = { x, y };
   }
 }
