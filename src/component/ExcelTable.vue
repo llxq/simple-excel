@@ -135,7 +135,7 @@ watchEffect(() => {
         background-color: var(--table-index-bg-color);
         position: sticky;
         left: 0;
-        z-index: var(--table-header-z-index);
+        z-index: var(--cell-mask-z-index);
       }
     }
   }
