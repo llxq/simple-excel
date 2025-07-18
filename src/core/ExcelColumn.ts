@@ -7,11 +7,16 @@ export interface IExcelColumnProps {
    * 列的宽度
    */
   width: number;
+  /**
+   * 内容文本
+   */
+  text?: string;
 }
 
 export class ExcelColumn implements IExcelColumnProps {
   public name: string;
   public width: number;
+  public text?: string;
 
   constructor(props: IExcelColumnProps) {
     this.name = props.name;

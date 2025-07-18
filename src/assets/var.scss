@@ -1,0 +1,25 @@
+.var-definition {
+  --border-color: #e6e6e6;
+  --table-header-text-color: #333;
+  --table-body-text-color: #000;
+  --table-header-bg-color: #eee;
+  --table-index-bg-color: #eee;
+  --table-select-all-button-color: #757575;
+  --table-select-all-button-size: 7px;
+  --table-cell-height: 24px;
+  --area-line-size: 2px;
+  --area-line-resize-size: 6px;
+  --area-line-color: #409eff;
+  /**
+   * table header z-index
+   */
+  --table-header-z-index: 10;
+  /**
+   * cell-mask z-index
+   */
+  --cell-mask-z-index: 1;
+  /**
+   * area line z-index
+   */
+  --area-line-z-index: 2;
+}

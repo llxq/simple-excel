@@ -1,3 +1,5 @@
+import { isArray, isObject, isUndefined } from "@/core/utils/is.ts";
+
 const MAX_ALPHABET = 26;
 
 /**
@@ -35,3 +37,27 @@ export const generateRowNameByLength = (length: number): string[] => {
   }
   return rowNames;
 };
+
+/**
+ * 将坐标转换为key
+ * @param x
+ * @param y
+ */
+export const pointConvertKey = (x: number | [number, number] | { x: number; y: number }, y?: number): string => {
+  if (isArray(x)) {
+    return x.toString();
+  } else if (isObject(x)) {
+    return `${x.x},${x.y}`;
+  } else {
+    if (isUndefined(x) || isUndefined(y)) {
+      throw new Error("x and y must be defined");
+    }
+    return `${x},${y}`;
+  }
+};
+
+/**
+ * 将px转换为字符串
+ * @param value
+ */
+export const toPx = (value: number | string): string => `${value}px`;

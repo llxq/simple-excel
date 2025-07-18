@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
-import { generateRowNameByLength } from "@/core/helper.ts";
-import ExcelCell from "./ExcelCell.vue";
+import ExcelLine from "@/component/ExcelLine.vue";
+import { generateRowNameByLength } from "@/core/utils/helper.ts";
 import { useProvideExcelBuilder } from "@/hooks/useExcelBuilder";
+import { computed, ref, watchEffect } from "vue";
+import ExcelCell from "./ExcelCell.vue";
 
 defineOptions({
   name: "ExcelTable",
@@ -13,7 +14,26 @@ const { xGrid, yGrid } = defineProps<{
   yGrid: number;
 }>();
 
-useProvideExcelBuilder();
+const { excelBuilder } = useProvideExcelBuilder();
+
+const getRowStyle = computed(() => {
+  return (index: number) => {
+    const { defaultColumnWidth } = excelBuilder.value.meta;
+    let currentWidth: number = defaultColumnWidth;
+    if (excelBuilder.value.rowConfiguration?.has(index)) {
+      const { width, hidden } = excelBuilder.value.rowConfiguration.get(index)!;
+      if (hidden) {
+        return {
+          display: "none",
+        };
+      }
+      currentWidth = width ?? defaultColumnWidth;
+    }
+    return {
+      width: `${currentWidth}px`,
+    };
+  };
+});
 
 const xGridNames = ref<string[]>();
 
@@ -28,7 +48,7 @@ watchEffect(() => {
       <table>
         <colgroup>
           <col class="row-index__col" />
-          <col v-for="name in xGridNames" :key="name" />
+          <col v-for="(name, index) in xGridNames" :key="name" :style="getRowStyle(index + 1)" />
         </colgroup>
         <thead>
           <tr>
@@ -47,33 +67,24 @@ watchEffect(() => {
         <colgroup>
           <!-- 索引列 -->
           <col class="row-index__col" />
-          <col v-for="name in xGridNames" :key="name" />
+          <col v-for="x in xGrid" :key="x" :style="getRowStyle(x)" />
         </colgroup>
         <tbody>
           <tr v-for="y in yGrid" :key="y">
             <td class="row-index__cell">{{ y }}</td>
-            <td v-for="x in xGrid" :key="x">
+            <td v-for="x in xGrid" :key="x" class="excel-cell__td" :data-x="x" :data-y="y">
               <ExcelCell :x="x" :y="y" />
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <ExcelLine />
   </div>
 </template>
 
 <style scoped lang="scss">
-.var-definition {
-  --border-color: #e6e6e6;
-  --active-border-color: blue;
-  --table-header-text-color: #333;
-  --table-body-text-color: #000;
-  --table-header-bg-color: #eee;
-  --table-index-bg-color: #eee;
-  --table-select-all-button-color: #757575;
-  --table-select-all-button-size: 7px;
-  --table-cell-height: 24px;
-}
+@use "../assets/var.scss";
 
 .excel-table {
   @extend .var-definition;
@@ -82,6 +93,7 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   overflow: auto;
+  position: relative;
 
   &__header,
   &__body {
@@ -90,10 +102,6 @@ watchEffect(() => {
     table {
       width: max-content;
       border-collapse: collapse;
-
-      col {
-        width: 80px;
-      }
 
       .row-index__cell,
       .row-index__col {
@@ -130,7 +138,7 @@ watchEffect(() => {
     height: var(--table-cell-height);
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: var(--table-header-z-index);
     /* 新增：使用 box-shadow 模拟一个不影响布局的底部边框 */
     box-shadow: 0 1px 0 0 var(--border-color);
 

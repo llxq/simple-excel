@@ -15,7 +15,7 @@ const { excelBuilder } = useInjectExcelBuilder();
 const inputRef = useTemplateRef<HTMLInputElement>("inputRef");
 
 const isActive = computed(() => {
-  return excelBuilder.activePoint.x === x && excelBuilder.activePoint.y === y;
+  return excelBuilder.activePoint?.x === x && excelBuilder.activePoint?.y === y;
 });
 
 const updateActivePoint = async () => {
@@ -23,10 +23,14 @@ const updateActivePoint = async () => {
   await nextTick();
   inputRef.value?.focus();
 };
+
+const addSelectPoint = () => {
+  excelBuilder.pointClick(x, y);
+};
 </script>
 
 <template>
-  <div class="excel-cell">
+  <div class="excel-cell" @click="addSelectPoint">
     <div v-if="!isActive" class="excel-cell__mask" @dblclick="updateActivePoint"></div>
     <input ref="inputRef" class="excel-cell__input" type="text" />
   </div>
@@ -60,7 +64,7 @@ const updateActivePoint = async () => {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2;
+    z-index: var(--cell-mask-z-index);
     width: 100%;
     height: 100%;
     background-color: transparent;
