@@ -42,8 +42,16 @@ export class ExcelBuilder {
    * Set(['1,2', '2,1', '3,4'])
    */
   public selectPointSet: Set<string> = new Set<string>();
-  public startPoint: TPoint = { x: 10, y: 10 };
-  public endPoint: TPoint = { x: 20, y: 20 };
+  public startPoint: TPoint = void 0;
+  public endPoint: TPoint = void 0;
+  /**
+   * 用于记录滚动的偏移量，优化选中区域
+   */
+  public scrollOffset = { left: 0, top: 0 };
+  /**
+   * 是否开始计算选中区域
+   */
+  public startCalculatingSelectArea = false;
 
   public updateActivePoint(x: TUndefinedAble<number>, y?: number) {
     if (isUndefined(x) || isUndefined(y)) {
@@ -58,10 +66,46 @@ export class ExcelBuilder {
    * @param x
    * @param y
    */
-  public pointClick(x: number, y: number) {
+  public pointClick(x: number, y: number): void {
     this.selectPointSet.clear();
     this.selectPointSet.add(pointConvertKey(x, y));
     this.startPoint = { x, y };
     this.endPoint = { x, y };
+  }
+
+  /**
+   * 更新是否开始计算选中区域
+   * @param value
+   */
+  public updateStartCalculatingSelectArea(value: boolean): void {
+    this.startCalculatingSelectArea = value;
+  }
+
+  /**
+   * 设置结束坐标（在鼠标进入单元格的时候）
+   * @param x
+   * @param y
+   */
+  public setEndPoint(x: number, y: number): void {
+    if (!this.startPoint) {
+      this.pointClick(x, y);
+      return;
+    }
+    this.endPoint = { x, y };
+    this.selectPointSet.clear();
+    // 搜集开始和结束之间的坐标
+    // 如果起始点已存在，则计算矩形选框的正确边界
+    const { x: startX, y: startY } = this.startPoint;
+    // 使用 Math.min 和 Math.max 来确保循环的起始和结束值是正确的，无论拖动方向如何
+    const minX = Math.min(startX, x);
+    const maxX = Math.max(startX, x);
+    const minY = Math.min(startY, y);
+    const maxY = Math.max(startY, y);
+    // 遍历矩形区域内的所有坐标点
+    for (let i = minX; i <= maxX; i++) {
+      for (let j = minY; j <= maxY; j++) {
+        this.selectPointSet.add(pointConvertKey(i, j));
+      }
+    }
   }
 }

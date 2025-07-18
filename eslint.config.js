@@ -18,6 +18,8 @@ export default tsEslint.config(
         ...globals.browser,
         ...globals.node,
         ...globals.es2021,
+        TUndefinedAble: "readonly",
+        TNullable: "readonly",
       },
     },
     rules: {

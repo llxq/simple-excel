@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useInjectExcelBuilder } from "@/hooks/useExcelBuilder";
-import { computed, useTemplateRef, nextTick } from "vue";
+import { computed, useTemplateRef, nextTick, watchSyncEffect, ref, watchPostEffect } from "vue";
+import { pointConvertKey, queryElementRectByPoint } from "@/core/utils/helper.ts";
 
 defineOptions({
   name: "ExcelCell",
@@ -24,13 +25,72 @@ const updateActivePoint = async () => {
   inputRef.value?.focus();
 };
 
-const addSelectPoint = () => {
+const cellRef = useTemplateRef<HTMLDivElement>("cellRef");
+const cellMousedown = (event: MouseEvent) => {
+  calcScrollOffset();
   excelBuilder.pointClick(x, y);
+  excelBuilder.updateStartCalculatingSelectArea(true);
+  event.preventDefault();
 };
+
+const cellMouseUp = () => {
+  excelBuilder.updateStartCalculatingSelectArea(false);
+};
+
+const startRect = ref<TUndefinedAble<DOMRect>>(void 0);
+watchPostEffect(() => {
+  if (cellRef.value) {
+    startRect.value = queryElementRectByPoint(x, y);
+  }
+});
+
+/**
+ * 计算滚动偏移
+ */
+const calcScrollOffset = () => {
+  const { left, top } = queryElementRectByPoint(x, y)!;
+  const { left: startLeft, top: startTop } = startRect.value!;
+  excelBuilder.scrollOffset.left = left - startLeft;
+  excelBuilder.scrollOffset.top = top - startTop;
+};
+
+const cellMouseEnter = () => {
+  requestAnimationFrame(() => {
+    if (excelBuilder.startCalculatingSelectArea) {
+      calcScrollOffset();
+      excelBuilder.setEndPoint(x, y);
+    }
+  });
+};
+
+/**
+ * 使用 sync 模式，不等待批量更新
+ */
+watchSyncEffect(() => {
+  if (excelBuilder.startCalculatingSelectArea) {
+    cellRef.value?.addEventListener("mouseenter", cellMouseEnter);
+  } else {
+    cellRef.value?.removeEventListener("mouseenter", cellMouseEnter);
+  }
+});
+
+const isSelected = computed(() => {
+  return excelBuilder.selectPointSet.has(pointConvertKey(x, y));
+});
 </script>
 
 <template>
-  <div class="excel-cell" @click="addSelectPoint">
+  <div
+    ref="cellRef"
+    :class="[
+      'excel-cell',
+      {
+        'is-selected': isSelected && !isActive,
+      },
+    ]"
+    @mousedown.stop="cellMousedown"
+    @mouseup="cellMouseUp"
+  >
     <div v-if="!isActive" class="excel-cell__mask" @dblclick="updateActivePoint"></div>
     <input ref="inputRef" class="excel-cell__input" type="text" />
   </div>
@@ -69,6 +129,10 @@ const addSelectPoint = () => {
     height: 100%;
     background-color: transparent;
     cursor: cell;
+  }
+
+  &.is-selected {
+    background-color: var(--table-cell-selected-bg-color);
   }
 }
 </style>

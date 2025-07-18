@@ -8,7 +8,7 @@ defineOptions({
 
 <template>
   <div class="simple-excel__container">
-    <ExcelTable :x-grid="24" :y-grid="30" />
+    <ExcelTable :x-grid="24" :y-grid="40" />
   </div>
 </template>
 

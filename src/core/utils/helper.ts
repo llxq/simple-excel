@@ -61,3 +61,16 @@ export const pointConvertKey = (x: number | [number, number] | { x: number; y: n
  * @param value
  */
 export const toPx = (value: number | string): string => `${value}px`;
+
+/**
+ * 根据坐标查询元素的rect
+ * @param x
+ * @param y
+ */
+export const queryElementRectByPoint = (x: number, y: number) => {
+  const element = document.querySelector(`.excel-cell__td[data-x="${x}"][data-y="${y}"]`) as HTMLInputElement;
+  if (!element) {
+    return void 0;
+  }
+  return element.getBoundingClientRect();
+};
