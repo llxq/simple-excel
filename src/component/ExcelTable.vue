@@ -117,6 +117,10 @@ watchEffect(() => {
         justify-content: center;
         align-items: center;
         cursor: pointer;
+        position: sticky;
+        left: 0;
+        z-index: var(--table-header-z-index);
+        background-color: var(--table-header-bg-color);
 
         .row-index__header {
           width: var(--table-select-all-button-size);
@@ -129,6 +133,9 @@ watchEffect(() => {
 
       .row-index__cell {
         background-color: var(--table-index-bg-color);
+        position: sticky;
+        left: 0;
+        z-index: var(--table-header-z-index);
       }
     }
   }
