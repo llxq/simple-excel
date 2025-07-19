@@ -60,7 +60,12 @@ export const pointConvertKey = (x: number | [number, number] | { x: number; y: n
  * 将px转换为字符串
  * @param value
  */
-export const toPx = (value: number | string): string => `${value}px`;
+export const toPx = (value: number | string): string => {
+  if (typeof value === "number") {
+    return `${value}px`;
+  }
+  return toPx(parseFloat(value));
+};
 
 /**
  * 根据坐标查询元素的rect

@@ -1,4 +1,4 @@
-import type { ExcelColConfig } from "@/core/ExcelColConfig.ts";
+import { ExcelColConfig } from "@/core/ExcelColConfig.ts";
 import { ExcelConfiguration } from "@/core/ExcelConfiguration.ts";
 import { pointConvertKey } from "@/core/utils/helper.ts";
 import { isUndefined } from "@/core/utils/is.ts";
@@ -24,7 +24,9 @@ export class ExcelBuilder {
   }
 
   constructor() {
-    this.updateActiveSheetName("sheet1");
+    const testSheetName = "sheet1";
+    this.configuration.addRowConfiguration(testSheetName, new Map());
+    this.updateActiveSheetName(testSheetName);
   }
 
   public updateActiveSheetName(activeSheetName: string) {
@@ -45,13 +47,28 @@ export class ExcelBuilder {
   public startPoint: TPoint = void 0;
   public endPoint: TPoint = void 0;
   /**
+   * 是否重新计算选中区域
+   */
+  public recalculateSelectAreaFlag = 1;
+  /**
    * 用于记录滚动的偏移量，优化选中区域
    */
   public scrollOffset = { left: 0, top: 0 };
   /**
+   * 表格相对位置的差值
+   */
+  public excelTableRect = { left: 0, top: 0 };
+  /**
    * 是否开始计算选中区域
    */
   public startCalculatingSelectArea = false;
+
+  /**
+   * 重新计算选中区域
+   */
+  public recalculateSelectArea() {
+    this.recalculateSelectAreaFlag++;
+  }
 
   public updateActivePoint(x: TUndefinedAble<number>, y?: number) {
     if (isUndefined(x) || isUndefined(y)) {
@@ -107,5 +124,22 @@ export class ExcelBuilder {
         this.selectPointSet.add(pointConvertKey(i, j));
       }
     }
+  }
+
+  public updateColumnWidth(index: number, width: number): void {
+    if (!this.rowConfiguration) return;
+    const rowConfiguration = this.rowConfiguration.get(index);
+    if (rowConfiguration) {
+      rowConfiguration.updateWidth(width, true);
+    } else {
+      this.rowConfiguration.set(
+        index,
+        new ExcelColConfig({
+          width: width + this.meta.defaultColumnWidth,
+          hidden: false,
+        }),
+      );
+    }
+    this.recalculateSelectArea();
   }
 }

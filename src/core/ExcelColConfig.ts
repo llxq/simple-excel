@@ -17,4 +17,17 @@ export class ExcelColConfig {
     this.width = props.width;
     this.hidden = props.hidden;
   }
+
+  /**
+   * 更新宽度
+   * @param width
+   * @param add
+   */
+  public updateWidth(width: number, add?: boolean): void {
+    if (add) {
+      this.width = this.width ? this.width + width : width;
+    } else {
+      this.width = width;
+    }
+  }
 }

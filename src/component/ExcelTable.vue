@@ -2,8 +2,9 @@
 import ExcelLine from "@/component/ExcelLine.vue";
 import { generateRowNameByLength } from "@/core/utils/helper.ts";
 import { useProvideExcelBuilder } from "@/hooks/useExcelBuilder";
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, useTemplateRef, watchEffect, watchPostEffect } from "vue";
 import ExcelCell from "./ExcelCell.vue";
+import ExcelColumnResizeWidth from "@/component/ExcelColumnResizeWidth.vue";
 
 defineOptions({
   name: "ExcelTable",
@@ -40,10 +41,63 @@ const xGridNames = ref<string[]>();
 watchEffect(() => {
   xGridNames.value = generateRowNameByLength(xGrid);
 });
+
+/**
+ * 不处理表格位置变更的情况，只初始化的时候计算位置
+ */
+const tableRef = useTemplateRef<HTMLDivElement>("tableRef");
+watchPostEffect(() => {
+  if (tableRef.value) {
+    const { left, top } = tableRef.value.getBoundingClientRect();
+    excelBuilder.value.excelTableRect = {
+      left,
+      top,
+    };
+  }
+});
+
+const resizeWidthParams = ref({
+  left: 0,
+  startLeft: 0,
+  // index start 1
+  resizeIndex: 0,
+  visible: false,
+});
+const startResizeColumnWidth = (index: number, event: MouseEvent) => {
+  if (event.button !== 0) {
+    return;
+  }
+  event.preventDefault();
+  const target = event.target as HTMLElement;
+  const clientX = event.clientX;
+  const { left } = target.getBoundingClientRect();
+  const startLeft = left - excelBuilder.value.excelTableRect.left;
+  resizeWidthParams.value = {
+    left: startLeft,
+    startLeft,
+    resizeIndex: index,
+    visible: true,
+  };
+
+  const resizeColumnMove = (event: MouseEvent) => {
+    const subLeft = event.clientX - clientX;
+    resizeWidthParams.value.left = startLeft + subLeft;
+  };
+  document.addEventListener("mousemove", resizeColumnMove);
+  const cleanup = () => {
+    // 开始更新列宽
+    const moveWidth = resizeWidthParams.value.left - resizeWidthParams.value.startLeft;
+    excelBuilder.value.updateColumnWidth(index, moveWidth);
+    document.removeEventListener("mousemove", resizeColumnMove);
+    document.removeEventListener("mouseup", cleanup);
+    resizeWidthParams.value.visible = false;
+  };
+  document.addEventListener("mouseup", cleanup);
+};
 </script>
 
 <template>
-  <div class="excel-table">
+  <div ref="tableRef" class="excel-table">
     <div class="excel-table__header">
       <table>
         <colgroup>
@@ -55,8 +109,9 @@ watchEffect(() => {
             <th class="row-index__th">
               <div class="row-index__header"></div>
             </th>
-            <th v-for="name in xGridNames" :key="name">
+            <th v-for="(name, index) in xGridNames" :key="name">
               {{ name }}
+              <div class="row-header-resize-line" @mousedown.stop="startResizeColumnWidth(index + 1, $event)"></div>
             </th>
           </tr>
         </thead>
@@ -81,13 +136,13 @@ watchEffect(() => {
     </div>
     <ExcelLine />
   </div>
+  <ExcelColumnResizeWidth v-if="resizeWidthParams.visible" v-bind="resizeWidthParams" />
 </template>
 
 <style scoped lang="scss">
-@use "../assets/var.scss";
+@use "../assets/base.scss";
 
 .excel-table {
-  @extend .var-definition;
   width: 100%;
   height: 100%;
   display: flex;
@@ -121,6 +176,8 @@ watchEffect(() => {
         left: 0;
         z-index: var(--table-header-z-index);
         background-color: var(--table-header-bg-color);
+        border-right: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
 
         .row-index__header {
           width: var(--table-select-all-button-size);
@@ -149,18 +206,27 @@ watchEffect(() => {
     /* 新增：使用 box-shadow 模拟一个不影响布局的底部边框 */
     box-shadow: 0 1px 0 0 var(--border-color);
 
+    tr {
+      border-top: 1px solid var(--border-color);
+      border-left: 1px solid var(--border-color);
+    }
+
     th {
       height: var(--table-cell-height);
       padding: 0;
       text-align: center;
       font-weight: 200;
-      border-right: 1px solid var(--border-color);
       background-color: var(--header-bg-color);
       font-size: 14px;
       color: var(--table-header-text-color);
+      position: relative;
 
       &:last-child {
         border-right: none;
+      }
+
+      .row-header-resize-line {
+        @extend .base-resize__line;
       }
     }
   }
@@ -188,10 +254,6 @@ watchEffect(() => {
       height: var(--table-cell-height);
       padding: 0;
       border: 1px solid var(--border-color);
-
-      &:first-child {
-        border-left: none;
-      }
     }
   }
 }

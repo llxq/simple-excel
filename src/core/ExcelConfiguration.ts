@@ -20,4 +20,8 @@ export class ExcelConfiguration {
    * 每一个 sheet 的行配置
    */
   public rowConfiguration: Map<string, Map<number, ExcelColConfig>> = new Map();
+
+  public addRowConfiguration(sheetName: string, rowConfiguration: Map<number, ExcelColConfig>) {
+    this.rowConfiguration.set(sheetName, rowConfiguration);
+  }
 }

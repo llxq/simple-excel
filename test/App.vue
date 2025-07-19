@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineOptions({
-  name: 'App',
-})
+  name: "App",
+});
 </script>
 
 <template>
@@ -11,7 +11,8 @@ defineOptions({
 </template>
 
 <style lang="scss">
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
 }

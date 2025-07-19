@@ -1,5 +1,5 @@
 .var-definition {
-  --border-color: #e6e6e6;
+  --border-color: #ddd;
   --table-header-text-color: #333;
   --table-body-text-color: #000;
   --table-header-bg-color: #eee;
@@ -11,6 +11,7 @@
   --area-line-size: 2px;
   --area-line-resize-size: 6px;
   --area-line-color: #409eff;
+  --resize-width-line-color: #409eff;
   /**
    * table header z-index
    */
@@ -23,4 +24,12 @@
    * area line z-index
    */
   --area-line-z-index: 2;
+  /**
+   * area line resize z-index
+   */
+  --area-line-resize-z-index: 20;
+  /**
+   * max z-index 优先级最高
+   */
+  --max-z-index: 2025;
 }

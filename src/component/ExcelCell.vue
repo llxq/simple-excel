@@ -27,10 +27,18 @@ const updateActivePoint = async () => {
 
 const cellRef = useTemplateRef<HTMLDivElement>("cellRef");
 const cellMousedown = (event: MouseEvent) => {
+  // 如果不是左键则不理会
+  if (event.button !== 0) {
+    return;
+  }
   calcScrollOffset();
   excelBuilder.pointClick(x, y);
   excelBuilder.updateStartCalculatingSelectArea(true);
-  event.preventDefault();
+  if (!isActive.value) {
+    event.preventDefault();
+    // 取消选中内容
+    window.getSelection()?.removeAllRanges();
+  }
 };
 
 const cellMouseUp = () => {
@@ -39,7 +47,7 @@ const cellMouseUp = () => {
 
 const startRect = ref<TUndefinedAble<DOMRect>>(void 0);
 watchPostEffect(() => {
-  if (cellRef.value) {
+  if (cellRef.value && excelBuilder.recalculateSelectAreaFlag) {
     startRect.value = queryElementRectByPoint(x, y);
   }
 });
@@ -57,8 +65,8 @@ const calcScrollOffset = () => {
 const cellMouseEnter = () => {
   requestAnimationFrame(() => {
     if (excelBuilder.startCalculatingSelectArea) {
-      calcScrollOffset();
       excelBuilder.setEndPoint(x, y);
+      calcScrollOffset();
     }
   });
 };
